@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEKTOR — Sajt koji prodaje umesto vas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F9FE;--surface:#FFFFFF;--tint:#EBF2FF;--tint-2:#F2F7FF;
+    --ink:#0E1A2E;--body:#46566E;--muted:#7B8AA1;
+    --line:#E4EAF4;--line-2:#EEF2F9;
+    --accent:#2F6BFF;--accent-d:#1A50DE;--accent-soft:#D9E5FF;
+    --green:#10B26A;--green-tint:#E3F7EE;
+    --warn:#FF6A52;--warn-tint:#FFEDE9;
+    --gold:#F5A623;
+    --dark:#0C1626;--dark-2:#11203A;
+    --display:'Space Grotesk',sans-serif;--font:'Inter',sans-serif;
+    --ease:cubic-bezier(.16,.84,.34,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--body);font-family:var(--font);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  ::selection{background:var(--accent);color:#fff}
+  a{color:inherit;text-decoration:none;cursor:pointer}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 28px}
+  h1,h2,h3{font-family:var(--display);color:var(--ink);font-weight:600;line-height:1.08;letter-spacing:-.02em}
+  em{font-style:normal;color:var(--accent)}
+  .eyebrow{font-family:var(--display);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:600;font-size:15px;padding:15px 28px;border-radius:12px;cursor:pointer;border:none;transition:transform .18s var(--ease),box-shadow .25s,background .2s}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 12px 30px -10px rgba(47,107,255,.6)}
+  .btn-primary:hover{background:var(--accent-d);transform:translateY(-2px);box-shadow:0 18px 40px -10px rgba(47,107,255,.7)}
+  .btn-ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--accent),#6f9bff);z-index:90;transition:width .1s linear}
+  nav{position:sticky;top:0;z-index:80;background:rgba(246,249,254,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-2)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .logo{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-.01em;color:var(--ink)}
+  .logo span{color:var(--accent)}
+  .nav-links{display:flex;gap:30px;align-items:center}
+  .nav-links a{font-size:14.5px;color:var(--body);font-weight:500;transition:color .15s;position:relative}
+  .nav-links a:hover,.nav-links a.active{color:var(--ink)}
+  .nav-links a.active::after{content:"";position:absolute;left:0;right:0;bottom:-23px;height:2px;background:var(--accent)}
+  .nav-cta{font-family:var(--display);font-weight:600;font-size:14px;padding:10px 18px;background:var(--accent);border-radius:10px;color:#fff!important;box-shadow:0 8px 20px -8px rgba(47,107,255,.6)}
+  .nav-cta.active::after{display:none}
+  .nav-cta:hover{background:var(--accent-d)}
+  .burger{display:none;background:none;border:none;color:var(--ink);font-size:26px;cursor:pointer}
+
+  .page{display:none}
+  .page.active{display:block}
+
+  #floatcta{position:fixed;right:24px;bottom:24px;z-index:70;opacity:0;transform:translateY(20px);pointer-events:none;transition:all .4s var(--ease)}
+  #floatcta.show{opacity:1;transform:none;pointer-events:auto}
+  #floatcta a{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:#fff;font-family:var(--display);font-weight:600;font-size:14.5px;padding:14px 22px;border-radius:14px;box-shadow:0 16px 40px -10px rgba(47,107,255,.7)}
+  #floatcta a:hover{background:var(--accent-d)}
+
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+
+  .hero{position:relative;padding:90px 0 96px;overflow:hidden}
+  .blob{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;opacity:.6}
+  .blob.a{width:420px;height:420px;background:#cfe0ff;top:-120px;right:-80px}
+  .blob.b{width:340px;height:340px;background:#e3ecff;bottom:-120px;left:-100px;opacity:.5}
+  .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.08fr .92fr;gap:54px;align-items:center}
+  .badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-size:12.5px;font-weight:500;color:var(--body);box-shadow:0 4px 14px -8px rgba(14,26,46,.2)}
+  .badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px var(--green-tint)}
+  .hero h1{font-size:clamp(38px,5.3vw,62px);margin:22px 0 0}
+  .hero .lead{font-size:18.5px;color:var(--body);max-width:500px;margin:24px 0 32px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .hero-cta .note{font-size:13px;color:var(--muted)}
+  .trust{display:flex;gap:30px;margin-top:40px;flex-wrap:wrap}
+  .trust b{font-family:var(--display);color:var(--ink);font-size:26px;display:block;font-weight:700}
+  .trust span{font-size:13px;color:var(--muted)}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:0 40px 90px -50px rgba(14,26,46,.4)}
+  .audit{padding:26px}
+  .audit-head{display:flex;align-items:center;justify-content:space-between;font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+  .pill{display:inline-flex;align-items:center;gap:7px;font-size:11px;padding:5px 11px;border-radius:99px;background:var(--green-tint);color:var(--green)}
+  .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+  .gauge{display:flex;align-items:flex-end;gap:16px;margin-bottom:8px}
+  .gauge .num{font-family:var(--display);font-weight:700;font-size:58px;line-height:.9;color:var(--ink)}
+  .gauge .lbl{font-size:13px;color:var(--muted);padding-bottom:8px}
+  .bar{height:9px;border-radius:99px;background:#EEF2F9;overflow:hidden;margin:16px 0 22px;position:relative}
+  .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--warn),var(--gold) 55%,var(--green));width:0;transition:width 1.4s var(--ease)}
+  .audit ul{list-style:none;display:grid;gap:12px}
+  .audit li{display:flex;align-items:center;gap:11px;font-size:14px;color:var(--body)}
+  .audit li .x{width:20px;height:20px;border-radius:50%;background:var(--warn-tint);color:var(--warn);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+  .audit-foot{margin-top:22px;padding-top:18px;border-top:1px solid var(--line-2);display:flex;align-items:center;justify-content:space-between}
+  .audit-foot .after{font-family:var(--display);font-weight:600;color:var(--green);font-size:15px}
+  .audit-foot .after b{font-size:22px}
+
+  section{padding:90px 0;position:relative}
+  .sec-head{max-width:680px;margin-bottom:52px}
+  .sec-head.center{margin-left:auto;margin-right:auto;text-align:center}
+  .sec-head h2{font-size:clamp(28px,3.7vw,44px);margin:14px 0 0}
+  .sec-head p{color:var(--body);font-size:17.5px;margin-top:18px}
+
+  .rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .rcard{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:30px;transition:transform .25s var(--ease),box-shadow .25s}
+  .rcard:hover{transform:translateY(-5px);box-shadow:0 30px 60px -35px rgba(14,26,46,.35)}
+  .rcard .q{font-family:var(--display);font-size:20px;color:var(--ink);font-weight:600;margin-bottom:10px;line-height:1.25}
+  .rcard p{color:var(--body);font-size:15px}
+  .rcard .tag{display:inline-block;font-size:12px;font-weight:600;color:var(--warn);background:var(--warn-tint);padding:5px 11px;border-radius:8px;margin-bottom:16px}
+
+  .dark{background:var(--dark);color:#C7D2E3;position:relative;overflow:hidden}
+  .dark::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 360px at 80% 10%,rgba(47,107,255,.18),transparent 60%)}
+  .dark .wrap{position:relative;z-index:1}
+  .dark .eyebrow{color:#86A5FF}
+  .dark h2{color:#fff}
+  .dark .sec-head p{color:#A9B6CC}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:8px}
+  .stat{background:var(--dark-2);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:34px 28px;text-align:center}
+  .stat .big{font-family:var(--display);font-weight:700;font-size:clamp(42px,5vw,58px);color:#fff;line-height:1}
+  .stat .big .u{font-size:24px;color:#86A5FF;margin-left:2px}
+  .stat p{color:#A9B6CC;font-size:14.5px;margin-top:12px}
+  .dark-foot{text-align:center;margin-top:48px}
+  .dark-foot p{font-family:var(--display);font-size:clamp(18px,2.4vw,24px);color:#fff;font-weight:500}
+  .dark-foot .hl{color:#86A5FF}
+
+  .guide-grid{display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:center}
+  .guide-pts{display:grid;gap:18px;margin-top:24px}
+  .gpt{display:flex;gap:14px;align-items:flex-start}
+  .gpt .ic{width:38px;height:38px;border-radius:11px;background:var(--tint);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .gpt b{font-family:var(--display);color:var(--ink);display:block;font-size:16px;margin-bottom:2px}
+  .gpt span{font-size:14.5px}
+  .guide-visual{background:var(--tint-2);border:1px solid var(--line);border-radius:22px;padding:40px;text-align:center}
+  .guide-visual .big-q{font-family:var(--display);font-size:clamp(24px,3vw,32px);color:var(--ink);line-height:1.25}
+  .guide-visual .big-q em{color:var(--accent)}
+
+  .transform{background:linear-gradient(180deg,var(--tint-2),var(--bg))}
+  .tf-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:54px;align-items:center}
+  .tf-list{display:grid;gap:20px;margin-top:26px}
+  .tf-item{display:flex;gap:14px;align-items:flex-start}
+  .tf-item .ck{width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-weight:700}
+  .tf-item b{font-family:var(--display);color:var(--ink);display:block;font-size:17px}
+  .tf-item span{font-size:14.5px}
+  .phone-stage{display:flex;justify-content:center}
+  .phone{width:300px;background:#0C1626;border-radius:38px;padding:14px;box-shadow:0 50px 100px -40px rgba(14,26,46,.55);position:relative}
+  .phone .notch{width:120px;height:24px;background:#0C1626;border-radius:0 0 16px 16px;position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:3}
+  .screen{background:linear-gradient(180deg,#EAF1FF,#F7FAFF);border-radius:26px;min-height:520px;padding:46px 16px 22px;overflow:hidden}
+  .screen .day{text-align:center;font-family:var(--display);color:var(--ink);font-weight:600;font-size:15px;margin-bottom:4px}
+  .screen .date{text-align:center;color:var(--muted);font-size:12px;margin-bottom:20px}
+  .notif{background:#fff;border-radius:14px;padding:13px 14px;display:flex;gap:11px;align-items:flex-start;box-shadow:0 10px 24px -14px rgba(14,26,46,.4);margin-bottom:12px;opacity:0;transform:translateY(16px)}
+  .notif.go{animation:pop .55s var(--ease) forwards}
+  .notif .ni{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .notif .nt b{font-family:var(--display);font-size:13.5px;color:var(--ink);display:block}
+  .notif .nt span{font-size:12px;color:var(--muted)}
+  .notif .time{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap}
+  @keyframes pop{to{opacity:1;transform:none}}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .pstep{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:32px 28px;position:relative;transition:transform .25s var(--ease)}
+  .pstep:hover{transform:translateY(-4px)}
+  .pstep .n{font-family:var(--display);font-weight:700;font-size:15px;color:var(--accent);background:var(--tint);width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+  .pstep h3{font-size:20px;margin-bottom:10px}
+  .pstep p{font-size:14.5px}
+  .time-pill{margin:34px auto 0;width:max-content;display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);padding:14px 24px;border-radius:14px;font-size:15px;box-shadow:0 16px 40px -28px rgba(14,26,46,.4)}
+  .time-pill b{font-family:var(--display);color:var(--accent)}
+
+  .proof-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px}
+  .pstat{text-align:center}
+  .pstat .big{font-family:var(--display);font-weight:700;font-size:clamp(40px,5vw,56px);color:var(--ink);line-height:1}
+  .pstat .big .u{color:var(--accent)}
+  .pstat p{color:var(--muted);font-size:14px;margin-top:8px}
+  .work{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .wcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:transform .25s var(--ease),box-shadow .25s}
+  .wcard:hover{transform:translateY(-5px);box-shadow:0 30px 60px -38px rgba(14,26,46,.4)}
+  .wcard .thumb{height:140px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:600;font-size:15px;color:var(--accent);background:linear-gradient(135deg,var(--tint),#fff);position:relative}
+  .wcard .thumb::after{content:"primer";position:absolute;top:12px;right:12px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:3px 8px;border-radius:99px}
+  .wcard .body{padding:22px}
+  .wcard h3{font-size:17px;margin-bottom:6px}
+  .wcard .result{font-family:var(--display);color:var(--green);font-weight:600;font-size:15px}
+  .wcard p{color:var(--body);font-size:13.5px;margin-top:6px}
+  .testi{margin-top:40px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:44px;max-width:840px;margin-left:auto;margin-right:auto;text-align:center}
+  .testi p{font-family:var(--display);font-size:clamp(19px,2.5vw,26px);color:var(--ink);line-height:1.4;font-weight:500}
+  .testi .who{color:var(--muted);font-size:14px;margin-top:18px}
+
+  .vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .vcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px 24px;transition:border-color .2s,transform .25s var(--ease)}
+  .vcard:hover{transform:translateY(-4px);border-color:var(--accent-soft)}
+  .vcard .ic{width:44px;height:44px;border-radius:12px;background:var(--tint);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px}
+  .vcard h3{font-size:17px;margin-bottom:8px}
+  .vcard p{font-size:14px}
+
+  .finalcta{background:var(--dark);color:#fff;text-align:center;overflow:hidden;position:relative}
+  .finalcta::before{content:"";position:absolute;inset:0;background:radial-gradient(700px 400px at 50% 0%,rgba(47,107,255,.25),transparent 60%)}
+  .finalcta .wrap{position:relative;z-index:1}
+  .finalcta h2{color:#fff;font-size:clamp(30px,4.4vw,52px)}
+  .finalcta p{color:#A9B6CC;font-size:18px;max-width:580px;margin:22px auto 34px}
+  .rr{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+  .rr div{display:flex;align-items:center;gap:8px;font-size:14px;color:#C7D2E3}
+  .rr .c{color:var(--green)}
+
+  .phead{padding:78px 0 10px}
+  .phead h1{font-size:clamp(34px,5vw,54px);margin-top:16px}
+  .phead p{color:var(--body);font-size:18px;max-width:600px;margin-top:18px}
+  .band{background:var(--surface);border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2)}
+  .incl{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .incl div{display:flex;gap:11px;align-items:flex-start;font-size:15px}
+  .incl .c{color:var(--green);font-weight:700;margin-top:1px}
+  .faq{display:grid;gap:12px;max-width:780px}
+  .faq details{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:0 22px}
+  .faq summary{cursor:pointer;list-style:none;padding:20px 0;font-family:var(--display);font-weight:600;font-size:16.5px;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";color:var(--accent);font-size:22px}
+  .faq details[open] summary::after{content:"−"}
+  .faq p{color:var(--body);padding:0 0 20px;font-size:14.5px}
+  .kgrid{display:grid;grid-template-columns:1.1fr .9fr;gap:46px;align-items:start}
+  form{display:grid;gap:14px}
+  label{font-size:13px;color:var(--body);font-family:var(--display);font-weight:500;display:block;margin-bottom:6px}
+  input,select,textarea{width:100%;background:var(--surface);border:1px solid var(--line);color:var(--ink);padding:13px 15px;border-radius:10px;font-family:var(--font);font-size:14.5px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  select{appearance:none;cursor:pointer}
+  .form-msg{display:none;background:var(--green-tint);border:1px solid var(--green);color:var(--green);padding:14px;border-radius:10px;font-size:14px;text-align:center}
+  .info-row{display:flex;gap:14px;align-items:flex-start;padding:18px 0;border-bottom:1px solid var(--line-2)}
+  .info-row .ic{color:var(--accent);font-size:20px}
+  .info-row b{font-family:var(--display);color:var(--ink);display:block;margin-bottom:3px}
+  .info-row span{color:var(--body);font-size:14.5px}
+
+  footer{border-top:1px solid var(--line);padding:46px 0;color:var(--muted);font-size:14px;background:var(--surface)}
+  .foot-in{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
+
+  @media (max-width:900px){
+    .hero-grid,.guide-grid,.tf-grid,.kgrid{grid-template-columns:1fr;gap:40px}
+    .rgrid,.steps,.work,.incl{grid-template-columns:1fr}
+    .vgrid,.stats,.proof-stats{grid-template-columns:1fr 1fr}
+    .nav-links{position:fixed;inset:70px 0 auto 0;flex-direction:column;background:var(--bg);border-bottom:1px solid var(--line);padding:20px 28px;gap:18px;display:none}
+    .nav-links.open{display:flex}
+    .nav-links a.active::after{display:none}
+    .burger{display:block}
+    #floatcta{right:16px;bottom:16px}
+  }
+  @media (max-width:560px){.vgrid,.stats,.proof-stats{grid-template-columns:1fr}}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .reveal{opacity:1;transform:none;transition:none}
+    .bar i{transition:none}
+    .notif{opacity:1;transform:none;animation:none}
+    *{transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<nav>
+  <div class="wrap nav-in">
+    <a class="logo" data-go="home">VEK<span>TOR</span></a>
+    <div class="nav-links" id="navlinks">
+      <a data-go="home">Početna</a>
+      <a data-go="proces">Naš proces</a>
+      <a data-go="radovi">Radovi</a>
+      <a data-go="kontakt" class="nav-cta">Besplatna analiza</a>
+    </div>
+    <button class="burger" aria-label="Meni" onclick="document.getElementById('navlinks').classList.toggle('open')">≡</button>
+  </div>
+</nav>
+
+<div id="floatcta"><a data-go="kontakt">Besplatna analiza →</a></div>
+
+<!-- ============ POČETNA ============ -->
+<main class="page active" id="page-home">
+
+  <header class="hero">
+    <div class="blob a"></div><div class="blob b"></div>
+    <div class="wrap hero-grid">
+      <div>
+        <span class="badge"><span class="dot"></span> Trenutno primamo nove klijente</span>
+        <h1>Vaš posao je vrhunski. <em>Šteta što to niko ne vidi na internetu.</em></h1>
+        <p class="lead">Pravimo sajtove koji rade kao vaš najbolji prodavac — privlače klijente, grade poverenje i pune vam kalendar. Vi date 2 sata, mi uradimo sve ostalo.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" data-go="kontakt">Zakaži besplatnu analizu →</a>
+          <span class="note">Bez obaveze · odgovor za 24h</span>
+        </div>
+        <div class="trust">
+          <div><b data-count="150" data-suffix="+">0</b><span>izrađenih sajtova</span></div>
+          <div><b data-count="7" data-suffix=" dana">0</b><span>prosečna isporuka</span></div>
+          <div><b data-count="2" data-suffix="h">0</b><span>vašeg vremena</span></div>
+        </div>
+      </div>
+      <div class="card audit reveal">
+        <div class="audit-head"><span>Besplatna analiza sajta</span><span class="pill"><span class="dot"></span>uživo</span></div>
+        <div class="gauge"><span class="num" id="score">0</span><span class="lbl">Vaš trenutni sajt<br>(prosečan rezultat)</span></div>
+        <div class="bar"><i id="bar"></i></div>
+        <ul>
+          <li><span class="x">✕</span> Sporo se učitava — posetilac ode za 3 sekunde</li>
+          <li><span class="x">✕</span> Nejasna poruka — kupac ne zna šta da uradi</li>
+          <li><span class="x">✕</span> Loš na telefonu — a 8/10 ljudi gleda baš tu</li>
+        </ul>
+        <div class="audit-foot"><span style="font-size:13px;color:var(--muted)">Posle naše izrade:</span><span class="after">→ <b>92</b>/100</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head reveal"><span class="eyebrow">Zvuči poznato?</span><h2>Najbolji ste u svom poslu — a na internetu kao da ne postojite.</h2></div>
+      <div class="rgrid">
+        <div class="rcard reveal"><span class="tag">Svaki dan</span><div class="q">Slabiji konkurent je stalno pun.</div><p>Ne zato što radi bolje od vas. Nego zato što ga ljudi prvo pronađu na Google-u — i ne traže dalje.</p></div>
+        <div class="rcard reveal" data-delay="80"><span class="tag">Bolna istina</span><div class="q">Preporuče vas — i baš tu se izgubi.</div><p>Čovek vas izgugla, otvori zastareo sajt sa telefona, ne vidi jasno šta nudite, i ode kod nekog ko deluje pouzdanije.</p></div>
+        <div class="rcard reveal"><span class="tag">Bačen novac</span><div class="q">Plaćate da vas vide, ali bez rezultata.</div><p>Posetioci dođu sa Instagrama ili reklame, ne znaju gde da kliknu, i odu za par sekundi. Novac ode sa njima.</p></div>
+        <div class="rcard reveal" data-delay="80"><span class="tag">Tiha šteta</span><div class="q">Telefon zvoni ređe nego što bi trebalo.</div><p>Za posao ovako dobar kao vaš, trebalo bi da zvoni mnogo češće. Problem skoro nikad nije kvalitet — nego vidljivost.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dark">
+    <div class="wrap">
+      <div class="sec-head center reveal"><span class="eyebrow">Skrivena cena</span><h2>Svaki dan vas ovo košta. Samo vam niko ne pošalje račun.</h2></div>
+      <div class="stats">
+        <div class="stat reveal"><div class="big"><span data-count="3">0</span><span class="u">sek</span></div><p>Toliko posetiocu treba da odluči da li ostaje na vašem sajtu ili odlazi zauvek.</p></div>
+        <div class="stat reveal" data-delay="100"><div class="big"><span data-count="8">0</span><span class="u">/10</span></div><p>Ljudi vas gleda sa telefona. Ako tamo izgledate loše, izgubili ste ih pre nego što su videli ponudu.</p></div>
+        <div class="stat reveal" data-delay="200"><div class="big"><span data-count="70">0</span><span class="u">%</span></div><p>Kupaca proverava sajt pre nego što vas pozove. Loš sajt = poziv koji nikada nije ni stigao.</p></div>
+      </div>
+      <div class="dark-foot reveal"><p>Dobra vest? Sve ovo se popravlja — <span class="hl">i lakše je nego što mislite.</span></p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap guide-grid">
+      <div class="reveal">
+        <span class="eyebrow">Razumemo vas</span>
+        <h2 style="font-size:clamp(28px,3.6vw,42px);margin-top:14px">Vi ste majstor svog zanata. Ne morate da budete i web programer.</h2>
+        <div class="guide-pts">
+          <div class="gpt"><span class="ic">◆</span><div><b>Bez tehničkog žargona</b><span>Ne pričamo o pluginovima i hostingu. Pričamo o klijentima i rezultatima.</span></div></div>
+          <div class="gpt"><span class="ic">◆</span><div><b>Bez cimanja</b><span>Tražimo vam dva sata, jednom. Sve ostalo — tekst, dizajn, tehniku — radimo mi.</span></div></div>
+          <div class="gpt"><span class="ic">◆</span><div><b>Bez rizika</b><span>Jasna cena i rok na početku. Ono što dogovorimo, to i dobijete.</span></div></div>
+        </div>
+      </div>
+      <div class="guide-visual reveal"><p class="big-q">„Ne treba mi lepši sajt.<br><em>Treba mi sajt koji prodaje umesto mene.</em>"</p></div>
+    </div>
+  </section>
+
+  <section class="transform">
+    <div class="wrap tf-grid">
+      <div class="reveal">
+        <span class="eyebrow">Zamislite ovako</span>
+        <h2 style="font-size:clamp(28px,3.7vw,44px);margin-top:14px">Ponedeljak ujutru, za par nedelja.</h2>
+        <div class="tf-list">
+          <div class="tf-item"><span class="ck">✓</span><div><b>Telefon je zvonio dvaput pre prve kafe.</b><span>Novi klijenti koji su vas pronašli sami.</span></div></div>
+          <div class="tf-item"><span class="ck">✓</span><div><b>Inbox pun upita.</b><span>Ljudi koji su već videli šta nudite i žele baš vas.</span></div></div>
+          <div class="tf-item"><span class="ck">✓</span><div><b>Kalendar se puni sam.</b><span>Termini zakazani online, bez da ste mrdnuli prstom.</span></div></div>
+        </div>
+        <p style="margin-top:26px;font-size:16px;color:var(--ink);font-family:var(--display);font-weight:500">To nije san. To je sajt koji radi dok vi radite svoj posao.</p>
+        <a class="btn btn-primary" data-go="kontakt" style="margin-top:26px">Hoću ovakav sajt →</a>
+      </div>
+      <div class="phone-stage">
+        <div class="phone" id="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="day">Ponedeljak</div>
+            <div class="date">08:00 — 09:15</div>
+            <div class="notif"><span class="ni" style="background:var(--green-tint);color:var(--green)">✉</span><div class="nt"><b>Novi upit preko sajta</b><span>„Zanima me termin ove nedelje…"</span></div><span class="time">08:14</span></div>
+            <div class="notif"><span class="ni" style="background:var(--tint);color:var(--accent)">📞</span><div class="nt"><b>Novi poziv sa sajta</b><span>+381 6X · novi klijent</span></div><span class="time">08:31</span></div>
+            <div class="notif"><span class="ni" style="background:#FFF3D6;color:var(--gold)">📅</span><div class="nt"><b>Termin zakazan online</b><span>Sreda, 14:00</span></div><span class="time">09:02</span></div>
+            <div class="notif"><span class="ni" style="background:var(--green-tint);color:var(--green)">✉</span><div class="nt"><b>Još jedan upit</b><span>„Koliko košta…"</span></div><span class="time">09:15</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head center reveal"><span class="eyebrow">Kako dolazimo do toga</span><h2>Tri koraka. Vaše vreme: 2 sata.</h2></div>
+      <div class="steps">
+        <div class="pstep reveal"><div class="n">01</div><h3>Brief</h3><p>Kratak razgovor do sat vremena. Ispričate nam šta radite i kome prodajete. To je sve što tražimo od vas.</p></div>
+        <div class="pstep reveal" data-delay="100"><div class="n">02</div><h3>Izrada</h3><p>Pišemo, dizajniramo i programiramo. Vi se bavite svojim poslom — bez prekida i bez pitanja na svakih pet minuta.</p></div>
+        <div class="pstep reveal" data-delay="200"><div class="n">03</div><h3>Isporuka</h3><p>Sajt je online, povezan i spreman da donosi upite. Pokažemo vam kako da sami menjate osnovne stvari.</p></div>
+      </div>
+      <div class="time-pill reveal">🕑 <span>Ceo proces od vas traži <b>najviše 2 sata.</b></span></div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="sec-head center reveal"><span class="eyebrow">Rezultati, ne obećanja</span><h2>Sajtovi koji su se isplatili</h2></div>
+      <div class="proof-stats">
+        <div class="pstat reveal"><div class="big"><span data-count="40">0</span><span class="u">%</span></div><p>više upita u proseku</p></div>
+        <div class="pstat reveal" data-delay="100"><div class="big"><span data-count="7">0</span><span class="u"> dana</span></div><p>do gotovog sajta</p></div>
+        <div class="pstat reveal" data-delay="200"><div class="big"><span data-count="150">0</span><span class="u">+</span></div><p>zadovoljnih biznisa</p></div>
+      </div>
+      <div class="work">
+        <div class="wcard reveal"><div class="thumb">Stomatološka ordinacija</div><div class="body"><h3>Zubko, Novi Beograd</h3><div class="result">+40% zakazanih pregleda</div><p>Online zakazivanje doneo 40% više termina u prvih 60 dana.</p></div></div>
+        <div class="wcard reveal" data-delay="100"><div class="thumb">Advokatska kancelarija</div><div class="body"><h3>Pravni tim Marić</h3><div class="result">12 novih upita mesečno</div><p>Jasna poruka i Google pozicija = stalni izvor klijenata.</p></div></div>
+        <div class="wcard reveal" data-delay="200"><div class="thumb">Auto-plac</div><div class="body"><h3>Auto Centar Vrh</h3><div class="result">2× više poziva</div><p>Brži sajt i jasna ponuda udvostručili pozive kupaca.</p></div></div>
+      </div>
+      <div class="testi reveal">
+        <p>„Očekivao sam komplikacije i gubljenje vremena. Dao sam im sat vremena i za nedelju dana imao sajt koji mi stvarno donosi pozive."</p>
+        <div class="who">— Vlasnik stomatološke ordinacije, Beograd · (primer izjave)</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head center reveal"><span class="eyebrow">Zašto baš mi</span><h2>Ne pravimo „lep sajt". Pravimo sajt koji donosi posao.</h2></div>
+      <div class="vgrid">
+        <div class="vcard reveal"><div class="ic">⚡</div><h3>Brzina</h3><p>Sajt za 7 dana, ne za tri meseca. Dok drugi crtaju, vaš već radi.</p></div>
+        <div class="vcard reveal" data-delay="80"><div class="ic">○</div><h3>Nulto cimanje</h3><p>Tražimo vam 2 sata. Sve ostalo radimo mi.</p></div>
+        <div class="vcard reveal" data-delay="160"><div class="ic">↗</div><h3>Fokus na rezultat</h3><p>Svaki element ima cilj: upit ili prodaju.</p></div>
+        <div class="vcard reveal" data-delay="240"><div class="ic">€</div><h3>Bez iznenađenja</h3><p>Cena s početka je cena na kraju. Tačka.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="finalcta">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="eyebrow">Poslednja stvar</span>
+        <h2>Vaš sledeći klijent vas upravo traži na Google-u.</h2>
+        <p>Pitanje je samo — da li će pronaći vas ili konkurenciju? Saznajte tačno gde gubite klijente. Besplatno, za 48 sati.</p>
+        <a class="btn btn-primary" data-go="kontakt" style="font-size:16px;padding:17px 34px">Zakaži besplatnu analizu →</a>
+        <div class="rr">
+          <div><span class="c">✓</span> Bez obaveze</div>
+          <div><span class="c">✓</span> Konkretan video za 48h</div>
+          <div><span class="c">✓</span> Odgovor za 24h</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ PROCES ============ -->
+<main class="page" id="page-proces">
+  <section class="phead"><div class="wrap"><span class="eyebrow">Naš proces</span><h1>Od ideje do gotovog sajta — uz 2 sata vašeg vremena.</h1><p>Proces je napravljen tako da vas ne opterećuje. Vi date osnovne informacije jednom, mi preuzimamo sve ostalo.</p></div></section>
+  <section style="padding-top:40px"><div class="wrap">
+    <div class="steps">
+      <div class="pstep reveal"><div class="n">01</div><h3>Brief</h3><p>Razgovor do 60 min, uživo ili online. Pitamo šta radite, kome prodajete i šta želite da posetilac uradi na sajtu.</p></div>
+      <div class="pstep reveal" data-delay="100"><div class="n">02</div><h3>Izrada</h3><p>Pišemo tekstove koji prodaju, dizajniramo u skladu sa brendom i programiramo brz, moderan sajt. Dobijate rundu izmena.</p></div>
+      <div class="pstep reveal" data-delay="200"><div class="n">03</div><h3>Isporuka</h3><p>Postavljamo online, povezujemo sa Google-om i mrežama, i držimo kratku obuku za samostalne izmene.</p></div>
+    </div>
+    <div class="time-pill reveal">🕑 <span>Ukupno vreme od vas: <b>najviše 2 sata.</b></span></div>
+  </div></section>
+  <section class="band"><div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Šta je uključeno</span><h2>Sve u jednoj ceni</h2></div>
+    <div class="incl reveal">
+      <div><span class="c">✓</span> Pisanje svih tekstova (copywriting)</div>
+      <div><span class="c">✓</span> Moderan dizajn prilagođen brendu</div>
+      <div><span class="c">✓</span> Potpuno prilagođeno telefonu</div>
+      <div><span class="c">✓</span> Brzo učitavanje i SEO priprema</div>
+      <div><span class="c">✓</span> Kontakt forma i povezivanje sa mejlom</div>
+      <div><span class="c">✓</span> Google mapa i poslovni profil</div>
+      <div><span class="c">✓</span> Povezivanje sa Instagram / Facebook</div>
+      <div><span class="c">✓</span> Obuka za samostalne izmene</div>
+    </div>
+  </div></section>
+  <section><div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Česta pitanja</span><h2>Ono što klijenti najčešće pitaju</h2></div>
+    <div class="faq reveal">
+      <details><summary>Koliko košta izrada sajta?</summary><p>Većina poslovnih sajtova je u rangu 800–1.500 €. Tačnu cenu dobijate na početku — bez naknadnih iznenađenja.</p></details>
+      <details><summary>Koliko zaista traje?</summary><p>Standardni poslovni sajt isporučujemo za oko 7 radnih dana od dobijanja materijala i vašeg pristanka na koncept.</p></details>
+      <details><summary>Moram li da imam tekstove i slike?</summary><p>Ne. Tekstove pišemo mi. Od vas treba samo logo i osnovne informacije; za fotografije predlažemo rešenja.</p></details>
+      <details><summary>Mogu li sam da menjam sajt kasnije?</summary><p>Da. Platforma je laka za samostalno održavanje, uz kratku obuku. Za veće izmene smo tu i mi.</p></details>
+    </div>
+  </div></section>
+  <section class="finalcta"><div class="wrap reveal"><span class="eyebrow">Spremni?</span><h2>Krenimo od besplatne analize</h2><p>Pokazaćemo vam tačno gde sajt gubi klijente i šta vredi popraviti.</p><a class="btn btn-primary" data-go="kontakt" style="font-size:16px;padding:17px 34px">Zakaži analizu →</a></div></section>
+</main>
+
+<!-- ============ RADOVI ============ -->
+<main class="page" id="page-radovi">
+  <section class="phead"><div class="wrap"><span class="eyebrow">Radovi</span><h1>Sajtovi koji se isplate.</h1><p>Studije slučaja i rezultati. Brojke i nazivi su primeri — zamenite ih stvarnim radovima čim ih budete imali.</p></div></section>
+  <section style="padding-top:44px"><div class="wrap">
+    <div class="work">
+      <div class="wcard reveal"><div class="thumb">Stomatološka ordinacija</div><div class="body"><h3>Zubko, Novi Beograd</h3><div class="result">+40% zakazanih pregleda</div><p>Online zakazivanje i jasna ponuda doveli 40% više termina u 60 dana.</p></div></div>
+      <div class="wcard reveal" data-delay="80"><div class="thumb">Advokatska kancelarija</div><div class="body"><h3>Pravni tim Marić</h3><div class="result">12 novih upita mesečno</div><p>Pozicija na Google-u pretvorila sajt u stabilan izvor klijenata.</p></div></div>
+      <div class="wcard reveal" data-delay="160"><div class="thumb">Auto-plac</div><div class="body"><h3>Auto Centar Vrh</h3><div class="result">2× više poziva</div><p>Brži sajt i pregledna ponuda udvostručili pozive kupaca.</p></div></div>
+      <div class="wcard reveal"><div class="thumb">Privatna poliklinika</div><div class="body"><h3>Medika Plus</h3><div class="result">+65% online zakazivanja</div><p>Jednostavno zakazivanje smanjilo opterećenje recepcije.</p></div></div>
+      <div class="wcard reveal" data-delay="80"><div class="thumb">Restoran</div><div class="body"><h3>Konoba Sidro</h3><div class="result">3× više rezervacija</div><p>Meni, galerija i rezervacija na jednom mestu, brzo na telefonu.</p></div></div>
+      <div class="wcard reveal" data-delay="160"><div class="thumb">Fitnes studio</div><div class="body"><h3>Forma Studio</h3><div class="result">+80 novih članova</div><p>Jasna ponuda paketa i upis online doneli novi talas članova.</p></div></div>
+    </div>
+  </div></section>
+  <section class="finalcta"><div class="wrap reveal"><span class="eyebrow">Vaš sajt je sledeći</span><h2>Hajde da vidimo gde vi gubite klijente</h2><p>Besplatna video analiza vašeg sajta, bez obaveze.</p><a class="btn btn-primary" data-go="kontakt" style="font-size:16px;padding:17px 34px">Zakaži besplatnu analizu →</a></div></section>
+</main>
+
+<!-- ============ KONTAKT ============ -->
+<main class="page" id="page-kontakt">
+  <section class="phead"><div class="wrap"><span class="eyebrow">Kontakt</span><h1>Zakažite besplatnu analizu sajta.</h1><p>Popunite kratku formu — javljamo se u roku od 24h sa terminom i video analizom vašeg sajta.</p></div></section>
+  <section style="padding-top:40px"><div class="wrap kgrid">
+    <div class="reveal">
+      <form onsubmit="event.preventDefault();this.style.display='none';document.getElementById('msg').style.display='block'">
+        <div><label for="biz">Ime biznisa</label><input id="biz" type="text" placeholder="npr. Stomatologija Smile" required></div>
+        <div><label for="site">Vaš trenutni sajt (ako postoji)</label><input id="site" type="text" placeholder="www.vassajt.rs"></div>
+        <div><label for="prob">Glavni problem</label><select id="prob" required><option value="">Izaberite…</option><option>Sajt je star / izgleda loše</option><option>Nemam sajt, treba mi nov</option><option>Sajt ne donosi upite</option><option>Slabo me vide na Google-u</option></select></div>
+        <div><label for="bud">Okviran budžet</label><select id="bud" required><option value="">Izaberite…</option><option>do 800 €</option><option>800 – 1.500 €</option><option>1.500 € i više</option><option>Nisam siguran/na</option></select></div>
+        <div><label for="msgf">Poruka (opciono)</label><textarea id="msgf" rows="3" placeholder="Recite nam ukratko šta želite da postignete."></textarea></div>
+        <button type="submit" class="btn btn-primary" style="justify-content:center">Pošalji zahtev za analizu</button>
+      </form>
+      <div class="form-msg" id="msg">✓ Hvala! Javljamo se sa video analizom u roku od 48 sati.</div>
+    </div>
+    <div class="reveal">
+      <div class="info-row"><span class="ic">✉</span><div><b>Email</b><span>kontakt@vektor.rs</span></div></div>
+      <div class="info-row"><span class="ic">☎</span><div><b>Telefon</b><span>+381 6X XXX XXXX</span></div></div>
+      <div class="info-row"><span class="ic">⏱</span><div><b>Radno vreme</b><span>Pon–Pet, 09–17h</span></div></div>
+      <div class="info-row"><span class="ic">⚲</span><div><b>Lokacija</b><span>Beograd · radimo i online</span></div></div>
+      <div style="margin-top:26px;padding:24px;border:1px solid var(--line);border-radius:16px;background:var(--tint-2)">
+        <b style="font-family:var(--display);color:var(--ink)">Šta se dešava posle?</b>
+        <div style="margin-top:14px;display:grid;gap:10px;font-size:14.5px">
+          <div>1 — Javimo se i dogovorimo kratak termin</div>
+          <div>2 — Snimimo video analizu vašeg sajta</div>
+          <div>3 — Dobijate jasan predlog i cenu — vi odlučujete</div>
+        </div>
+      </div>
+    </div>
+  </div></section>
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <a class="logo" data-go="home">VEK<span>TOR</span></a>
+    <div>Sajtovi koji donose klijente · Beograd</div>
+    <div>kontakt@vektor.rs · +381 6X XXX XXXX</div>
+  </div>
+</footer>
+
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pages=document.querySelectorAll('.page');
+
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{
+    if(e.isIntersecting){
+      const d=e.target.dataset.delay||0;
+      e.target.style.transitionDelay=d+'ms';
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+      countScan(e.target);
+    }
+  })},{threshold:.15,rootMargin:'0px 0px -8% 0px'});
+  function scan(root){if(!root)return;root.querySelectorAll('.reveal').forEach(el=>{if(!el.classList.contains('in'))io.observe(el)});}
+
+  function countOne(el){
+    const t=+el.dataset.count, suf=el.dataset.suffix||'', pre=el.dataset.prefix||'';
+    if(reduce){el.textContent=pre+t+suf;return;}
+    let s=null,dur=1100;
+    function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/dur,1);const v=Math.round((1-Math.pow(1-p,3))*t);el.textContent=pre+v+suf;if(p<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);
+  }
+  function countScan(scope){
+    if(!scope)return;
+    const els = (scope.matches&&scope.matches('[data-count]'))?[scope]:scope.querySelectorAll('[data-count]');
+    els.forEach(e=>{if(!e.dataset.done){e.dataset.done=1;countOne(e);}});
+  }
+  const cio=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){countScan(e.target);cio.unobserve(e.target);}})},{threshold:.5});
+  document.querySelectorAll('[data-count]').forEach(e=>cio.observe(e));
+
+  let gaugeDone=false;
+  const gio=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting&&!gaugeDone){gaugeDone=true;
+    const sc=document.getElementById('score');let s=null;
+    if(reduce){sc.textContent=34;document.getElementById('bar').style.width='34%';return;}
+    function st(ts){if(!s)s=ts;const p=Math.min((ts-s)/1200,1);sc.textContent=Math.round((1-Math.pow(1-p,3))*34);if(p<1)requestAnimationFrame(st);}
+    requestAnimationFrame(st);setTimeout(()=>document.getElementById('bar').style.width='34%',200);
+  }})},{threshold:.4});
+  const ac=document.querySelector('.audit');if(ac)gio.observe(ac);
+
+  let phoneDone=false;
+  const pio=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting&&!phoneDone){phoneDone=true;
+    e.target.querySelectorAll('.notif').forEach((n,i)=>{if(reduce){n.classList.add('go');}else{n.style.animationDelay=(i*700)+'ms';n.classList.add('go');}});
+  }})},{threshold:.4});
+  const ph=document.getElementById('phone');if(ph)pio.observe(ph);
+
+  function go(id){
+    pages.forEach(p=>p.classList.toggle('active',p.id==='page-'+id));
+    document.querySelectorAll('.nav-links a').forEach(a=>a.classList.toggle('active',a.dataset.go===id));
+    document.getElementById('navlinks').classList.remove('open');
+    window.scrollTo({top:0});
+    requestAnimationFrame(()=>scan(document.getElementById('page-'+id)));
+  }
+  document.querySelectorAll('[data-go]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();go(a.dataset.go)}));
+
+  const prog=document.getElementById('progress'),fc=document.getElementById('floatcta');
+  function onScroll(){
+    const h=document.documentElement;const sc=h.scrollTop||document.body.scrollTop,max=h.scrollHeight-h.clientHeight;
+    prog.style.width=(max>0?(sc/max*100):0)+'%';
+    if(document.getElementById('page-home').classList.contains('active')&&sc>640)fc.classList.add('show');else fc.classList.remove('show');
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+
+  scan(document.getElementById('page-home'));
+  onScroll();
+</script>
+</body>
+</html>
